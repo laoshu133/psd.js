@@ -1,5 +1,5 @@
 {
-  "name": "@laoshu133/psd",
+  "name": "psd.js",
   "description": "A general purpose Photoshop file parser.",
   "version": "3.1.2",
   "main": "./index.js",
