@@ -159,13 +159,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @copyright Copyright (c) 2016 Yehuda Katz, Tom Dale, Stefan Penner and contributors
 	 * @license   Licensed under MIT license
 	 *            See https://raw.githubusercontent.com/tildeio/rsvp.js/master/LICENSE
-	 * @version   3.3.3
+	 * @version   3.6.2
 	 */
 	
 	(function (global, factory) {
-	   true ? factory(exports) :
-	  typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	  (factory((global.RSVP = global.RSVP || {})));
+		 true ? factory(exports) :
+		typeof define === 'function' && define.amd ? define(['exports'], factory) :
+		(factory((global.RSVP = global.RSVP || {})));
 	}(this, (function (exports) { 'use strict';
 	
 	function indexOf(callbacks, callback) {
@@ -224,13 +224,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    @private
 	    @param {Object} object object to extend with EventTarget methods
 	  */
-	  mixin: function mixin(object) {
+	  mixin: function (object) {
 	    object['on'] = this['on'];
 	    object['off'] = this['off'];
 	    object['trigger'] = this['trigger'];
 	    object._promiseCallbacks = undefined;
 	    return object;
 	  },
+	
 	
 	  /**
 	    Registers a callback to be executed when `eventName` is triggered
@@ -246,13 +247,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    @param {String} eventName name of the event to listen for
 	    @param {Function} callback function to be called when the event is triggered.
 	  */
-	  on: function on(eventName, callback) {
+	  on: function (eventName, callback) {
 	    if (typeof callback !== 'function') {
 	      throw new TypeError('Callback must be a function');
 	    }
 	
 	    var allCallbacks = callbacksFor(this),
-	        callbacks = undefined;
+	        callbacks = void 0;
 	
 	    callbacks = allCallbacks[eventName];
 	
@@ -264,6 +265,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      callbacks.push(callback);
 	    }
 	  },
+	
 	
 	  /**
 	    You can use `off` to stop firing a particular callback for an event:
@@ -295,10 +297,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    argument is given, all callbacks will be removed from the event's callback
 	    queue.
 	  */
-	  off: function off(eventName, callback) {
+	  off: function (eventName, callback) {
 	    var allCallbacks = callbacksFor(this),
-	        callbacks = undefined,
-	        index = undefined;
+	        callbacks = void 0,
+	        index = void 0;
 	
 	    if (!callback) {
 	      allCallbacks[eventName] = [];
@@ -313,6 +315,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      callbacks.splice(index, 1);
 	    }
 	  },
+	
 	
 	  /**
 	    Use `trigger` to fire custom events. For example:
@@ -339,10 +342,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    @param {*} options optional value to be passed to any event handlers for
 	    the given `eventName`
 	  */
-	  trigger: function trigger(eventName, options, label) {
+	  trigger: function (eventName, options, label) {
 	    var allCallbacks = callbacksFor(this),
-	        callbacks = undefined,
-	        callback = undefined;
+	        callbacks = void 0,
+	        callback = void 0;
 	
 	    if (callbacks = allCallbacks[eventName]) {
 	      // Don't cache the callbacks.length since it may grow
@@ -362,14 +365,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	EventTarget['mixin'](config);
 	
 	function configure(name, value) {
-	  if (name === 'onerror') {
-	    // handle for legacy users that expect the actual
-	    // error to be passed to their function added via
-	    // `RSVP.configure('onerror', someFunctionHere);`
-	    config['on']('error', value);
-	    return;
-	  }
-	
 	  if (arguments.length === 2) {
 	    config[name] = value;
 	  } else {
@@ -378,24 +373,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	function objectOrFunction(x) {
-	  return typeof x === 'function' || typeof x === 'object' && x !== null;
+	  var type = typeof x;
+	  return x !== null && (type === 'object' || type === 'function');
 	}
 	
 	function isFunction(x) {
 	  return typeof x === 'function';
 	}
 	
-	function isMaybeThenable(x) {
-	  return typeof x === 'object' && x !== null;
+	function isObject(x) {
+	  return x !== null && typeof x === 'object';
 	}
 	
-	var _isArray = undefined;
-	if (!Array.isArray) {
+	function isMaybeThenable(x) {
+	  return x !== null && typeof x === 'object';
+	}
+	
+	var _isArray = void 0;
+	if (Array.isArray) {
+	  _isArray = Array.isArray;
+	} else {
 	  _isArray = function (x) {
 	    return Object.prototype.toString.call(x) === '[object Array]';
 	  };
-	} else {
-	  _isArray = Array.isArray;
 	}
 	
 	var isArray = _isArray;
@@ -404,19 +404,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
 	var now = Date.now || function () {
 	  return new Date().getTime();
-	};
-	
-	function F() {}
-	
-	var o_create = Object.create || function (o) {
-	  if (arguments.length > 1) {
-	    throw new Error('Second argument not supported');
-	  }
-	  if (typeof o !== 'object') {
-	    throw new TypeError('Argument must be an object');
-	  }
-	  F.prototype = o;
-	  return new F();
 	};
 	
 	var queue = [];
@@ -439,6 +426,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    queue.length = 0;
 	  }, 50);
 	}
+	
 	function instrument(eventName, promise, child) {
 	  if (1 === queue.push({
 	    name: eventName,
@@ -522,18 +510,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}
 	
-	function tryThen(then, value, fulfillmentHandler, rejectionHandler) {
+	function tryThen(then$$1, value, fulfillmentHandler, rejectionHandler) {
 	  try {
-	    then.call(value, fulfillmentHandler, rejectionHandler);
+	    then$$1.call(value, fulfillmentHandler, rejectionHandler);
 	  } catch (e) {
 	    return e;
 	  }
 	}
 	
-	function handleForeignThenable(promise, thenable, then) {
+	function handleForeignThenable(promise, thenable, then$$1) {
 	  config.async(function (promise) {
 	    var sealed = false;
-	    var error = tryThen(then, thenable, function (value) {
+	    var error = tryThen(then$$1, thenable, function (value) {
 	      if (sealed) {
 	        return;
 	      }
@@ -578,19 +566,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}
 	
-	function handleMaybeThenable(promise, maybeThenable, then$$) {
-	  if (maybeThenable.constructor === promise.constructor && then$$ === then && promise.constructor.resolve === resolve$1) {
+	function handleMaybeThenable(promise, maybeThenable, then$$1) {
+	  var isOwnThenable = maybeThenable.constructor === promise.constructor && then$$1 === then && promise.constructor.resolve === resolve$1;
+	
+	  if (isOwnThenable) {
 	    handleOwnThenable(promise, maybeThenable);
+	  } else if (then$$1 === GET_THEN_ERROR) {
+	    reject(promise, GET_THEN_ERROR.error);
+	    GET_THEN_ERROR.error = null;
+	  } else if (isFunction(then$$1)) {
+	    handleForeignThenable(promise, maybeThenable, then$$1);
 	  } else {
-	    if (then$$ === GET_THEN_ERROR) {
-	      reject(promise, GET_THEN_ERROR.error);
-	    } else if (then$$ === undefined) {
-	      fulfill(promise, maybeThenable);
-	    } else if (isFunction(then$$)) {
-	      handleForeignThenable(promise, maybeThenable, then$$);
-	    } else {
-	      fulfill(promise, maybeThenable);
-	    }
+	    fulfill(promise, maybeThenable);
 	  }
 	}
 	
@@ -665,18 +652,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 	
-	  var child = undefined,
-	      callback = undefined,
-	      detail = promise._result;
+	  var child = void 0,
+	      callback = void 0,
+	      result = promise._result;
 	
 	  for (var i = 0; i < subscribers.length; i += 3) {
 	    child = subscribers[i];
 	    callback = subscribers[i + settled];
 	
 	    if (child) {
-	      invokeCallback(settled, child, callback, detail);
+	      invokeCallback(settled, child, callback, result);
 	    } else {
-	      callback(detail);
+	      callback(result);
 	    }
 	  }
 	
@@ -689,53 +676,45 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var TRY_CATCH_ERROR = new ErrorObject();
 	
-	function tryCatch(callback, detail) {
+	function tryCatch(callback, result) {
 	  try {
-	    return callback(detail);
+	    return callback(result);
 	  } catch (e) {
 	    TRY_CATCH_ERROR.error = e;
 	    return TRY_CATCH_ERROR;
 	  }
 	}
 	
-	function invokeCallback(settled, promise, callback, detail) {
-	  var hasCallback = isFunction(callback),
-	      value = undefined,
-	      error = undefined,
-	      succeeded = undefined,
-	      failed = undefined;
+	function invokeCallback(state, promise, callback, result) {
+	  var hasCallback = isFunction(callback);
+	  var value = void 0,
+	      error = void 0;
 	
 	  if (hasCallback) {
-	    value = tryCatch(callback, detail);
+	    value = tryCatch(callback, result);
 	
 	    if (value === TRY_CATCH_ERROR) {
-	      failed = true;
 	      error = value.error;
-	      value = null;
-	    } else {
-	      succeeded = true;
-	    }
-	
-	    if (promise === value) {
+	      value.error = null; // release
+	    } else if (value === promise) {
 	      reject(promise, withOwnPromise());
 	      return;
 	    }
 	  } else {
-	    value = detail;
-	    succeeded = true;
+	    value = result;
 	  }
 	
 	  if (promise._state !== PENDING) {
 	    // noop
-	  } else if (hasCallback && succeeded) {
-	      resolve(promise, value);
-	    } else if (failed) {
-	      reject(promise, error);
-	    } else if (settled === FULFILLED) {
-	      fulfill(promise, value);
-	    } else if (settled === REJECTED) {
-	      reject(promise, value);
-	    }
+	  } else if (hasCallback && error === undefined) {
+	    resolve(promise, value);
+	  } else if (error !== undefined) {
+	    reject(promise, error);
+	  } else if (state === FULFILLED) {
+	    fulfill(promise, value);
+	  } else if (state === REJECTED) {
+	    reject(promise, value);
+	  }
 	}
 	
 	function initializePromise(promise, resolver) {
@@ -760,8 +739,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	function then(onFulfillment, onRejection, label) {
-	  var _arguments = arguments;
-	
 	  var parent = this;
 	  var state = parent._state;
 	
@@ -777,19 +754,116 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  config.instrument && instrument('chained', parent, child);
 	
-	  if (state) {
-	    (function () {
-	      var callback = _arguments[state - 1];
-	      config.async(function () {
-	        return invokeCallback(state, child, callback, result);
-	      });
-	    })();
-	  } else {
+	  if (state === PENDING) {
 	    subscribe(parent, child, onFulfillment, onRejection);
+	  } else {
+	    var callback = state === FULFILLED ? onFulfillment : onRejection;
+	    config.async(function () {
+	      return invokeCallback(state, child, callback, result);
+	    });
 	  }
 	
 	  return child;
 	}
+	
+	var Enumerator = function () {
+	  function Enumerator(Constructor, input, abortOnReject, label) {
+	    this._instanceConstructor = Constructor;
+	    this.promise = new Constructor(noop, label);
+	    this._abortOnReject = abortOnReject;
+	
+	    this._init.apply(this, arguments);
+	  }
+	
+	  Enumerator.prototype._init = function _init(Constructor, input) {
+	    var len = input.length || 0;
+	    this.length = len;
+	    this._remaining = len;
+	    this._result = new Array(len);
+	
+	    this._enumerate(input);
+	    if (this._remaining === 0) {
+	      fulfill(this.promise, this._result);
+	    }
+	  };
+	
+	  Enumerator.prototype._enumerate = function _enumerate(input) {
+	    var length = this.length;
+	    var promise = this.promise;
+	
+	    for (var i = 0; promise._state === PENDING && i < length; i++) {
+	      this._eachEntry(input[i], i);
+	    }
+	  };
+	
+	  Enumerator.prototype._settleMaybeThenable = function _settleMaybeThenable(entry, i) {
+	    var c = this._instanceConstructor;
+	    var resolve$$1 = c.resolve;
+	
+	    if (resolve$$1 === resolve$1) {
+	      var then$$1 = getThen(entry);
+	
+	      if (then$$1 === then && entry._state !== PENDING) {
+	        entry._onError = null;
+	        this._settledAt(entry._state, i, entry._result);
+	      } else if (typeof then$$1 !== 'function') {
+	        this._remaining--;
+	        this._result[i] = this._makeResult(FULFILLED, i, entry);
+	      } else if (c === Promise) {
+	        var promise = new c(noop);
+	        handleMaybeThenable(promise, entry, then$$1);
+	        this._willSettleAt(promise, i);
+	      } else {
+	        this._willSettleAt(new c(function (resolve$$1) {
+	          return resolve$$1(entry);
+	        }), i);
+	      }
+	    } else {
+	      this._willSettleAt(resolve$$1(entry), i);
+	    }
+	  };
+	
+	  Enumerator.prototype._eachEntry = function _eachEntry(entry, i) {
+	    if (isMaybeThenable(entry)) {
+	      this._settleMaybeThenable(entry, i);
+	    } else {
+	      this._remaining--;
+	      this._result[i] = this._makeResult(FULFILLED, i, entry);
+	    }
+	  };
+	
+	  Enumerator.prototype._settledAt = function _settledAt(state, i, value) {
+	    var promise = this.promise;
+	
+	    if (promise._state === PENDING) {
+	      if (this._abortOnReject && state === REJECTED) {
+	        reject(promise, value);
+	      } else {
+	        this._remaining--;
+	        this._result[i] = this._makeResult(state, i, value);
+	        if (this._remaining === 0) {
+	          fulfill(promise, this._result);
+	        }
+	      }
+	    }
+	  };
+	
+	  Enumerator.prototype._makeResult = function _makeResult(state, i, value) {
+	    return value;
+	  };
+	
+	  Enumerator.prototype._willSettleAt = function _willSettleAt(promise, i) {
+	    var enumerator = this;
+	
+	    subscribe(promise, undefined, function (value) {
+	      return enumerator._settledAt(FULFILLED, i, value);
+	    }, function (reason) {
+	      return enumerator._settledAt(REJECTED, i, reason);
+	    });
+	  };
+	
+	  return Enumerator;
+	}();
 	
 	function makeSettledResult(state, position, value) {
 	  if (state === FULFILLED) {
@@ -804,122 +878,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	  }
 	}
-	
-	function Enumerator(Constructor, input, abortOnReject, label) {
-	  this._instanceConstructor = Constructor;
-	  this.promise = new Constructor(noop, label);
-	  this._abortOnReject = abortOnReject;
-	
-	  if (this._validateInput(input)) {
-	    this._input = input;
-	    this.length = input.length;
-	    this._remaining = input.length;
-	
-	    this._init();
-	
-	    if (this.length === 0) {
-	      fulfill(this.promise, this._result);
-	    } else {
-	      this.length = this.length || 0;
-	      this._enumerate();
-	      if (this._remaining === 0) {
-	        fulfill(this.promise, this._result);
-	      }
-	    }
-	  } else {
-	    reject(this.promise, this._validationError());
-	  }
-	}
-	
-	Enumerator.prototype._validateInput = function (input) {
-	  return isArray(input);
-	};
-	
-	Enumerator.prototype._validationError = function () {
-	  return new Error('Array Methods must be provided an Array');
-	};
-	
-	Enumerator.prototype._init = function () {
-	  this._result = new Array(this.length);
-	};
-	
-	Enumerator.prototype._enumerate = function () {
-	  var length = this.length;
-	  var promise = this.promise;
-	  var input = this._input;
-	
-	  for (var i = 0; promise._state === PENDING && i < length; i++) {
-	    this._eachEntry(input[i], i);
-	  }
-	};
-	
-	Enumerator.prototype._settleMaybeThenable = function (entry, i) {
-	  var c = this._instanceConstructor;
-	  var resolve = c.resolve;
-	
-	  if (resolve === resolve$1) {
-	    var then$$ = getThen(entry);
-	
-	    if (then$$ === then && entry._state !== PENDING) {
-	      entry._onError = null;
-	      this._settledAt(entry._state, i, entry._result);
-	    } else if (typeof then$$ !== 'function') {
-	      this._remaining--;
-	      this._result[i] = this._makeResult(FULFILLED, i, entry);
-	    } else if (c === Promise) {
-	      var promise = new c(noop);
-	      handleMaybeThenable(promise, entry, then$$);
-	      this._willSettleAt(promise, i);
-	    } else {
-	      this._willSettleAt(new c(function (resolve) {
-	        return resolve(entry);
-	      }), i);
-	    }
-	  } else {
-	    this._willSettleAt(resolve(entry), i);
-	  }
-	};
-	
-	Enumerator.prototype._eachEntry = function (entry, i) {
-	  if (isMaybeThenable(entry)) {
-	    this._settleMaybeThenable(entry, i);
-	  } else {
-	    this._remaining--;
-	    this._result[i] = this._makeResult(FULFILLED, i, entry);
-	  }
-	};
-	
-	Enumerator.prototype._settledAt = function (state, i, value) {
-	  var promise = this.promise;
-	
-	  if (promise._state === PENDING) {
-	    this._remaining--;
-	
-	    if (this._abortOnReject && state === REJECTED) {
-	      reject(promise, value);
-	    } else {
-	      this._result[i] = this._makeResult(state, i, value);
-	    }
-	  }
-	
-	  if (this._remaining === 0) {
-	    fulfill(promise, this._result);
-	  }
-	};
-	
-	Enumerator.prototype._makeResult = function (state, i, value) {
-	  return value;
-	};
-	
-	Enumerator.prototype._willSettleAt = function (promise, i) {
-	  var enumerator = this;
-	
-	  subscribe(promise, undefined, function (value) {
-	    return enumerator._settledAt(FULFILLED, i, value);
-	  }, function (reason) {
-	    return enumerator._settledAt(REJECTED, i, reason);
-	  });
-	};
 	
 	/**
 	  `RSVP.Promise.all` accepts an array of promises, and returns a new promise which
@@ -969,7 +927,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  @static
 	*/
 	function all(entries, label) {
-	  return new Enumerator(this, entries, true, /* abort on reject */label).promise;
+	  if (!isArray(entries)) {
+	    return this.reject(new TypeError("Promise.all must be called with an array"), label);
+	  }
+	  return new Enumerator(this, entries, true /* abort on reject */, label).promise;
 	}
 	
 	/**
@@ -1045,7 +1006,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var promise = new Constructor(noop, label);
 	
 	  if (!isArray(entries)) {
-	    reject(promise, new TypeError('You must pass an array to race.'));
+	    reject(promise, new TypeError('Promise.race must be called with an array'));
 	    return promise;
 	  }
 	
@@ -1218,236 +1179,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	  Useful for tooling.
 	  @constructor
 	*/
-	function Promise(resolver, label) {
-	  this._id = counter++;
-	  this._label = label;
-	  this._state = undefined;
-	  this._result = undefined;
-	  this._subscribers = [];
 	
-	  config.instrument && instrument('created', this);
+	var Promise = function () {
+	  function Promise(resolver, label) {
+	    this._id = counter++;
+	    this._label = label;
+	    this._state = undefined;
+	    this._result = undefined;
+	    this._subscribers = [];
 	
-	  if (noop !== resolver) {
-	    typeof resolver !== 'function' && needsResolver();
-	    this instanceof Promise ? initializePromise(this, resolver) : needsNew();
+	    config.instrument && instrument('created', this);
+	
+	    if (noop !== resolver) {
+	      typeof resolver !== 'function' && needsResolver();
+	      this instanceof Promise ? initializePromise(this, resolver) : needsNew();
+	    }
 	  }
-	}
 	
-	Promise.cast = resolve$1; // deprecated
-	Promise.all = all;
-	Promise.race = race;
-	Promise.resolve = resolve$1;
-	Promise.reject = reject$1;
+	  Promise.prototype._onError = function _onError(reason) {
+	    var _this = this;
 	
-	Promise.prototype = {
-	  constructor: Promise,
-	
-	  _guidKey: guidKey,
-	
-	  _onError: function _onError(reason) {
-	    var promise = this;
 	    config.after(function () {
-	      if (promise._onError) {
-	        config['trigger']('error', reason, promise._label);
+	      if (_this._onError) {
+	        config.trigger('error', reason, _this._label);
 	      }
 	    });
-	  },
-	
-	  /**
-	    The primary way of interacting with a promise is through its `then` method,
-	    which registers callbacks to receive either a promise's eventual value or the
-	    reason why the promise cannot be fulfilled.
-	  
-	    ```js
-	    findUser().then(function(user){
-	      // user is available
-	    }, function(reason){
-	      // user is unavailable, and you are given the reason why
-	    });
-	    ```
-	  
-	    Chaining
-	    --------
-	  
-	    The return value of `then` is itself a promise.  This second, 'downstream'
-	    promise is resolved with the return value of the first promise's fulfillment
-	    or rejection handler, or rejected if the handler throws an exception.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      return user.name;
-	    }, function (reason) {
-	      return 'default name';
-	    }).then(function (userName) {
-	      // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
-	      // will be `'default name'`
-	    });
-	  
-	    findUser().then(function (user) {
-	      throw new Error('Found user, but still unhappy');
-	    }, function (reason) {
-	      throw new Error('`findUser` rejected and we\'re unhappy');
-	    }).then(function (value) {
-	      // never reached
-	    }, function (reason) {
-	      // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
-	      // If `findUser` rejected, `reason` will be '`findUser` rejected and we\'re unhappy'.
-	    });
-	    ```
-	    If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      throw new PedagogicalException('Upstream error');
-	    }).then(function (value) {
-	      // never reached
-	    }).then(function (value) {
-	      // never reached
-	    }, function (reason) {
-	      // The `PedgagocialException` is propagated all the way down to here
-	    });
-	    ```
-	  
-	    Assimilation
-	    ------------
-	  
-	    Sometimes the value you want to propagate to a downstream promise can only be
-	    retrieved asynchronously. This can be achieved by returning a promise in the
-	    fulfillment or rejection handler. The downstream promise will then be pending
-	    until the returned promise is settled. This is called *assimilation*.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      return findCommentsByAuthor(user);
-	    }).then(function (comments) {
-	      // The user's comments are now available
-	    });
-	    ```
-	  
-	    If the assimliated promise rejects, then the downstream promise will also reject.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      return findCommentsByAuthor(user);
-	    }).then(function (comments) {
-	      // If `findCommentsByAuthor` fulfills, we'll have the value here
-	    }, function (reason) {
-	      // If `findCommentsByAuthor` rejects, we'll have the reason here
-	    });
-	    ```
-	  
-	    Simple Example
-	    --------------
-	  
-	    Synchronous Example
-	  
-	    ```javascript
-	    let result;
-	  
-	    try {
-	      result = findResult();
-	      // success
-	    } catch(reason) {
-	      // failure
-	    }
-	    ```
-	  
-	    Errback Example
-	  
-	    ```js
-	    findResult(function(result, err){
-	      if (err) {
-	        // failure
-	      } else {
-	        // success
-	      }
-	    });
-	    ```
-	  
-	    Promise Example;
-	  
-	    ```javascript
-	    findResult().then(function(result){
-	      // success
-	    }, function(reason){
-	      // failure
-	    });
-	    ```
-	  
-	    Advanced Example
-	    --------------
-	  
-	    Synchronous Example
-	  
-	    ```javascript
-	    let author, books;
-	  
-	    try {
-	      author = findAuthor();
-	      books  = findBooksByAuthor(author);
-	      // success
-	    } catch(reason) {
-	      // failure
-	    }
-	    ```
-	  
-	    Errback Example
-	  
-	    ```js
-	  
-	    function foundBooks(books) {
-	  
-	    }
-	  
-	    function failure(reason) {
-	  
-	    }
-	  
-	    findAuthor(function(author, err){
-	      if (err) {
-	        failure(err);
-	        // failure
-	      } else {
-	        try {
-	          findBoooksByAuthor(author, function(books, err) {
-	            if (err) {
-	              failure(err);
-	            } else {
-	              try {
-	                foundBooks(books);
-	              } catch(reason) {
-	                failure(reason);
-	              }
-	            }
-	          });
-	        } catch(error) {
-	          failure(err);
-	        }
-	        // success
-	      }
-	    });
-	    ```
-	  
-	    Promise Example;
-	  
-	    ```javascript
-	    findAuthor().
-	      then(findBooksByAuthor).
-	      then(function(books){
-	        // found books
-	    }).catch(function(reason){
-	      // something went wrong
-	    });
-	    ```
-	  
-	    @method then
-	    @param {Function} onFulfillment
-	    @param {Function} onRejection
-	    @param {String} label optional string for labeling the promise.
-	    Useful for tooling.
-	    @return {Promise}
-	  */
-	  then: then,
+	  };
 	
 	  /**
 	    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
@@ -1477,9 +1234,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Useful for tooling.
 	    @return {Promise}
 	  */
-	  'catch': function _catch(onRejection, label) {
+	
+	
+	  Promise.prototype.catch = function _catch(onRejection, label) {
 	    return this.then(undefined, onRejection, label);
-	  },
+	  };
 	
 	  /**
 	    `finally` will be invoked regardless of the promise's fate just as native
@@ -1498,7 +1257,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    try {
 	      return findAuthor(); // succeed or fail
 	    } catch(error) {
-	      return findOtherAuther();
+	      return findOtherAuthor();
 	    } finally {
 	      // always runs
 	      // doesn't affect the return value
@@ -1509,7 +1268,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  
 	    ```js
 	    findAuthor().catch(function(reason){
-	      return findOtherAuther();
+	      return findOtherAuthor();
 	    }).finally(function(){
 	      // author was either found, or not
 	    });
@@ -1521,7 +1280,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Useful for tooling.
 	    @return {Promise}
 	  */
-	  'finally': function _finally(callback, label) {
+	
+	
+	  Promise.prototype.finally = function _finally(callback, label) {
 	    var promise = this;
 	    var constructor = promise.constructor;
 	
@@ -1534,8 +1295,216 @@ return /******/ (function(modules) { // webpackBootstrap
 	        throw reason;
 	      });
 	    }, label);
+	  };
+	
+	  return Promise;
+	}();
+	
+	
+	
+	Promise.cast = resolve$1; // deprecated
+	Promise.all = all;
+	Promise.race = race;
+	Promise.resolve = resolve$1;
+	Promise.reject = reject$1;
+	
+	Promise.prototype._guidKey = guidKey;
+	
+	/**
+	  The primary way of interacting with a promise is through its `then` method,
+	  which registers callbacks to receive either a promise's eventual value or the
+	  reason why the promise cannot be fulfilled.
+	
+	  ```js
+	  findUser().then(function(user){
+	    // user is available
+	  }, function(reason){
+	    // user is unavailable, and you are given the reason why
+	  });
+	  ```
+	
+	  Chaining
+	  --------
+	
+	  The return value of `then` is itself a promise.  This second, 'downstream'
+	  promise is resolved with the return value of the first promise's fulfillment
+	  or rejection handler, or rejected if the handler throws an exception.
+	
+	  ```js
+	  findUser().then(function (user) {
+	    return user.name;
+	  }, function (reason) {
+	    return 'default name';
+	  }).then(function (userName) {
+	    // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+	    // will be `'default name'`
+	  });
+	
+	  findUser().then(function (user) {
+	    throw new Error('Found user, but still unhappy');
+	  }, function (reason) {
+	    throw new Error('`findUser` rejected and we\'re unhappy');
+	  }).then(function (value) {
+	    // never reached
+	  }, function (reason) {
+	    // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+	    // If `findUser` rejected, `reason` will be '`findUser` rejected and we\'re unhappy'.
+	  });
+	  ```
+	  If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+	
+	  ```js
+	  findUser().then(function (user) {
+	    throw new PedagogicalException('Upstream error');
+	  }).then(function (value) {
+	    // never reached
+	  }).then(function (value) {
+	    // never reached
+	  }, function (reason) {
+	    // The `PedgagocialException` is propagated all the way down to here
+	  });
+	  ```
+	
+	  Assimilation
+	  ------------
+	
+	  Sometimes the value you want to propagate to a downstream promise can only be
+	  retrieved asynchronously. This can be achieved by returning a promise in the
+	  fulfillment or rejection handler. The downstream promise will then be pending
+	  until the returned promise is settled. This is called *assimilation*.
+	
+	  ```js
+	  findUser().then(function (user) {
+	    return findCommentsByAuthor(user);
+	  }).then(function (comments) {
+	    // The user's comments are now available
+	  });
+	  ```
+	
+	  If the assimliated promise rejects, then the downstream promise will also reject.
+	
+	  ```js
+	  findUser().then(function (user) {
+	    return findCommentsByAuthor(user);
+	  }).then(function (comments) {
+	    // If `findCommentsByAuthor` fulfills, we'll have the value here
+	  }, function (reason) {
+	    // If `findCommentsByAuthor` rejects, we'll have the reason here
+	  });
+	  ```
+	
+	  Simple Example
+	  --------------
+	
+	  Synchronous Example
+	
+	  ```javascript
+	  let result;
+	
+	  try {
+	    result = findResult();
+	    // success
+	  } catch(reason) {
+	    // failure
 	  }
-	};
+	  ```
+	
+	  Errback Example
+	
+	  ```js
+	  findResult(function(result, err){
+	    if (err) {
+	      // failure
+	    } else {
+	      // success
+	    }
+	  });
+	  ```
+	
+	  Promise Example;
+	
+	  ```javascript
+	  findResult().then(function(result){
+	    // success
+	  }, function(reason){
+	    // failure
+	  });
+	  ```
+	
+	  Advanced Example
+	  --------------
+	
+	  Synchronous Example
+	
+	  ```javascript
+	  let author, books;
+	
+	  try {
+	    author = findAuthor();
+	    books  = findBooksByAuthor(author);
+	    // success
+	  } catch(reason) {
+	    // failure
+	  }
+	  ```
+	
+	  Errback Example
+	
+	  ```js
+	
+	  function foundBooks(books) {
+	
+	  }
+	
+	  function failure(reason) {
+	
+	  }
+	
+	  findAuthor(function(author, err){
+	    if (err) {
+	      failure(err);
+	      // failure
+	    } else {
+	      try {
+	        findBoooksByAuthor(author, function(books, err) {
+	          if (err) {
+	            failure(err);
+	          } else {
+	            try {
+	              foundBooks(books);
+	            } catch(reason) {
+	              failure(reason);
+	            }
+	          }
+	        });
+	      } catch(error) {
+	        failure(err);
+	      }
+	      // success
+	    }
+	  });
+	  ```
+	
+	  Promise Example;
+	
+	  ```javascript
+	  findAuthor().
+	    then(findBooksByAuthor).
+	    then(function(books){
+	      // found books
+	  }).catch(function(reason){
+	    // something went wrong
+	  });
+	  ```
+	
+	  @method then
+	  @param {Function} onFulfillment
+	  @param {Function} onRejection
+	  @param {String} label optional string for labeling the promise.
+	  Useful for tooling.
+	  @return {Promise}
+	*/
+	Promise.prototype.then = then;
 	
 	function Result() {
 	  this.value = undefined;
@@ -1572,8 +1541,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  for (var i = 0; i < argumentNames.length; i++) {
-	    var _name = argumentNames[i];
-	    obj[_name] = args[i + 1];
+	    var name = argumentNames[i];
+	    obj[name] = args[i + 1];
 	  }
 	
 	  return obj;
@@ -1590,10 +1559,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return args;
 	}
 	
-	function wrapThenable(_then, promise) {
+	function wrapThenable(then, promise) {
 	  return {
-	    then: function then(onFulFillment, onRejection) {
-	      return _then.call(promise, onFulFillment, onRejection);
+	    then: function (onFulFillment, onRejection) {
+	      return then.call(promise, onFulFillment, onRejection);
 	    }
 	  };
 	}
@@ -1727,7 +1696,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  @static
 	*/
 	function denodeify(nodeFunc, options) {
-	  var fn = function fn() {
+	  var fn = function () {
 	    var self = this;
 	    var l = arguments.length;
 	    var args = new Array(l + 1);
@@ -1812,69 +1781,72 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return Promise.all(array, label);
 	}
 	
-	function AllSettled(Constructor, entries, label) {
-	  this._superConstructor(Constructor, entries, false, /* don't abort on reject */label);
-	}
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
-	AllSettled.prototype = o_create(Enumerator.prototype);
-	AllSettled.prototype._superConstructor = Enumerator;
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var AllSettled = function (_Enumerator) {
+	  _inherits(AllSettled, _Enumerator);
+	
+	  function AllSettled(Constructor, entries, label) {
+	    return _possibleConstructorReturn(this, _Enumerator.call(this, Constructor, entries, false /* don't abort on reject */, label));
+	  }
+	
+	  return AllSettled;
+	}(Enumerator);
+	
 	AllSettled.prototype._makeResult = makeSettledResult;
-	AllSettled.prototype._validationError = function () {
-	  return new Error('allSettled must be called with an array');
-	};
 	
 	/**
-	  `RSVP.allSettled` is similar to `RSVP.all`, but instead of implementing
-	  a fail-fast method, it waits until all the promises have returned and
-	  shows you all the results. This is useful if you want to handle multiple
-	  promises' failure states together as a set.
-	
-	  Returns a promise that is fulfilled when all the given promises have been
-	  settled. The return promise is fulfilled with an array of the states of
-	  the promises passed into the `promises` array argument.
-	
-	  Each state object will either indicate fulfillment or rejection, and
-	  provide the corresponding value or reason. The states will take one of
-	  the following formats:
-	
-	  ```javascript
-	  { state: 'fulfilled', value: value }
-	    or
-	  { state: 'rejected', reason: reason }
-	  ```
-	
-	  Example:
-	
-	  ```javascript
-	  let promise1 = RSVP.Promise.resolve(1);
-	  let promise2 = RSVP.Promise.reject(new Error('2'));
-	  let promise3 = RSVP.Promise.reject(new Error('3'));
-	  let promises = [ promise1, promise2, promise3 ];
-	
-	  RSVP.allSettled(promises).then(function(array){
-	    // array == [
-	    //   { state: 'fulfilled', value: 1 },
-	    //   { state: 'rejected', reason: Error },
-	    //   { state: 'rejected', reason: Error }
-	    // ]
-	    // Note that for the second item, reason.message will be '2', and for the
-	    // third item, reason.message will be '3'.
-	  }, function(error) {
-	    // Not run. (This block would only be called if allSettled had failed,
-	    // for instance if passed an incorrect argument type.)
-	  });
-	  ```
-	
-	  @method allSettled
-	  @static
-	  @for RSVP
-	  @param {Array} entries
-	  @param {String} label - optional string that describes the promise.
-	  Useful for tooling.
-	  @return {Promise} promise that is fulfilled with an array of the settled
-	  states of the constituent promises.
+	`RSVP.allSettled` is similar to `RSVP.all`, but instead of implementing
+	a fail-fast method, it waits until all the promises have returned and
+	shows you all the results. This is useful if you want to handle multiple
+	promises' failure states together as a set.
+	 Returns a promise that is fulfilled when all the given promises have been
+	settled. The return promise is fulfilled with an array of the states of
+	the promises passed into the `promises` array argument.
+	 Each state object will either indicate fulfillment or rejection, and
+	provide the corresponding value or reason. The states will take one of
+	the following formats:
+	 ```javascript
+	{ state: 'fulfilled', value: value }
+	  or
+	{ state: 'rejected', reason: reason }
+	```
+	 Example:
+	 ```javascript
+	let promise1 = RSVP.Promise.resolve(1);
+	let promise2 = RSVP.Promise.reject(new Error('2'));
+	let promise3 = RSVP.Promise.reject(new Error('3'));
+	let promises = [ promise1, promise2, promise3 ];
+	 RSVP.allSettled(promises).then(function(array){
+	  // array == [
+	  //   { state: 'fulfilled', value: 1 },
+	  //   { state: 'rejected', reason: Error },
+	  //   { state: 'rejected', reason: Error }
+	  // ]
+	  // Note that for the second item, reason.message will be '2', and for the
+	  // third item, reason.message will be '3'.
+	}, function(error) {
+	  // Not run. (This block would only be called if allSettled had failed,
+	  // for instance if passed an incorrect argument type.)
+	});
+	```
+	 @method allSettled
+	@static
+	@for RSVP
+	@param {Array} entries
+	@param {String} label - optional string that describes the promise.
+	Useful for tooling.
+	@return {Promise} promise that is fulfilled with an array of the settled
+	states of the constituent promises.
 	*/
+	
 	function allSettled(entries, label) {
+	  if (!isArray(entries)) {
+	    return Promise.reject(new TypeError("Promise.allSettled must be called with an array"), label);
+	  }
+	
 	  return new AllSettled(Promise, entries, label).promise;
 	}
 	
@@ -1892,48 +1864,55 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return Promise.race(array, label);
 	}
 	
-	function PromiseHash(Constructor, object, label) {
-	  this._superConstructor(Constructor, object, true, label);
-	}
+	function _possibleConstructorReturn$1(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
-	PromiseHash.prototype = o_create(Enumerator.prototype);
-	PromiseHash.prototype._superConstructor = Enumerator;
-	PromiseHash.prototype._init = function () {
-	  this._result = {};
-	};
+	function _inherits$1(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	PromiseHash.prototype._validateInput = function (input) {
-	  return input && typeof input === 'object';
-	};
+	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	
-	PromiseHash.prototype._validationError = function () {
-	  return new Error('Promise.hash must be called with an object');
-	};
+	var PromiseHash = function (_Enumerator) {
+	  _inherits$1(PromiseHash, _Enumerator);
 	
-	PromiseHash.prototype._enumerate = function () {
-	  var enumerator = this;
-	  var promise = enumerator.promise;
-	  var input = enumerator._input;
-	  var results = [];
+	  function PromiseHash(Constructor, object) {
+	    var abortOnReject = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+	    var label = arguments[3];
+	    return _possibleConstructorReturn$1(this, _Enumerator.call(this, Constructor, object, abortOnReject, label));
+	  }
 	
-	  for (var key in input) {
-	    if (promise._state === PENDING && Object.prototype.hasOwnProperty.call(input, key)) {
-	      results.push({
-	        position: key,
-	        entry: input[key]
-	      });
+	  PromiseHash.prototype._init = function _init(Constructor, object) {
+	    this._result = {};
+	
+	    this._enumerate(object);
+	    if (this._remaining === 0) {
+	      fulfill(this.promise, this._result);
 	    }
-	  }
+	  };
 	
-	  var length = results.length;
-	  enumerator._remaining = length;
-	  var result = undefined;
+	  PromiseHash.prototype._enumerate = function _enumerate(input) {
+	    var promise = this.promise;
+	    var results = [];
 	
-	  for (var i = 0; promise._state === PENDING && i < length; i++) {
-	    result = results[i];
-	    enumerator._eachEntry(result.entry, result.position);
-	  }
-	};
+	    for (var key in input) {
+	      if (hasOwnProperty.call(input, key)) {
+	        results.push({
+	          position: key,
+	          entry: input[key]
+	        });
+	      }
+	    }
+	
+	    var length = results.length;
+	    this._remaining = length;
+	    var result = void 0;
+	
+	    for (var i = 0; promise._state === PENDING && i < length; i++) {
+	      result = results[i];
+	      this._eachEntry(result.entry, result.position);
+	    }
+	  };
+	
+	  return PromiseHash;
+	}(Enumerator);
 	
 	/**
 	  `RSVP.hash` is similar to `RSVP.all`, but takes an object instead of an array
@@ -2024,20 +2003,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	  have been fulfilled, or rejected if any of them become rejected.
 	*/
 	function hash(object, label) {
+	  if (!isObject(object)) {
+	    return Promise.reject(new TypeError("Promise.hash must be called with an object"), label);
+	  }
+	
 	  return new PromiseHash(Promise, object, label).promise;
 	}
 	
-	function HashSettled(Constructor, object, label) {
-	  this._superConstructor(Constructor, object, false, label);
-	}
+	function _possibleConstructorReturn$2(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
-	HashSettled.prototype = o_create(PromiseHash.prototype);
-	HashSettled.prototype._superConstructor = Enumerator;
+	function _inherits$2(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var HashSettled = function (_PromiseHash) {
+	  _inherits$2(HashSettled, _PromiseHash);
+	
+	  function HashSettled(Constructor, object, label) {
+	    return _possibleConstructorReturn$2(this, _PromiseHash.call(this, Constructor, object, false, label));
+	  }
+	
+	  return HashSettled;
+	}(PromiseHash);
+	
 	HashSettled.prototype._makeResult = makeSettledResult;
-	
-	HashSettled.prototype._validationError = function () {
-	  return new Error('hashSettled must be called with an object');
-	};
 	
 	/**
 	  `RSVP.hashSettled` is similar to `RSVP.allSettled`, but takes an object
@@ -2140,10 +2127,55 @@ return /******/ (function(modules) { // webpackBootstrap
 	  have been settled.
 	  @static
 	*/
+	
 	function hashSettled(object, label) {
-	  return new HashSettled(Promise, object, label).promise;
+	  if (!isObject(object)) {
+	    return Promise.reject(new TypeError("RSVP.hashSettled must be called with an object"), label);
+	  }
+	
+	  return new HashSettled(Promise, object, false, label).promise;
 	}
 	
+	/**
+	  `RSVP.rethrow` will rethrow an error on the next turn of the JavaScript event
+	  loop in order to aid debugging.
+	
+	  Promises A+ specifies that any exceptions that occur with a promise must be
+	  caught by the promises implementation and bubbled to the last handler. For
+	  this reason, it is recommended that you always specify a second rejection
+	  handler function to `then`. However, `RSVP.rethrow` will throw the exception
+	  outside of the promise, so it bubbles up to your console if in the browser,
+	  or domain/cause uncaught exception in Node. `rethrow` will also throw the
+	  error again so the error can be handled by the promise per the spec.
+	
+	  ```javascript
+	  function throws(){
+	    throw new Error('Whoops!');
+	  }
+	
+	  let promise = new RSVP.Promise(function(resolve, reject){
+	    throws();
+	  });
+	
+	  promise.catch(RSVP.rethrow).then(function(){
+	    // Code here doesn't run because the promise became rejected due to an
+	    // error!
+	  }, function (err){
+	    // handle the error here
+	  });
+	  ```
+	
+	  The 'Whoops' error will be thrown on the next turn of the event loop
+	  and you can watch for it in your console. You can also handle it using a
+	  rejection handler given to `.then` or `.catch` on the returned promise.
+	
+	  @method rethrow
+	  @static
+	  @for RSVP
+	  @param {Error} reason reason the promise became rejected.
+	  @throws Error
+	  @static
+	*/
 	function rethrow(reason) {
 	  setTimeout(function () {
 	    throw reason;
@@ -2183,6 +2215,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  Useful for tooling.
 	  @return {Object}
 	 */
+	
 	function defer(label) {
 	  var deferred = { resolve: undefined, reject: undefined };
 	
@@ -2273,11 +2306,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  @static
 	*/
 	function map(promises, mapFn, label) {
-	  return Promise.all(promises, label).then(function (values) {
-	    if (!isFunction(mapFn)) {
-	      throw new TypeError("You must pass a function as map's second argument.");
-	    }
+	  if (!isArray(promises)) {
+	    return Promise.reject(new TypeError("RSVP.map must be called with an array"), label);
+	  }
 	
+	  if (!isFunction(mapFn)) {
+	    return Promise.reject(new TypeError("RSVP.map expects a function as a second argument"), label);
+	  }
+	
+	  return Promise.all(promises, label).then(function (values) {
 	    var length = values.length;
 	    var results = new Array(length);
 	
@@ -2415,13 +2452,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return resolveAll(promises, label);
 	  });
 	}
+	
 	function filter(promises, filterFn, label) {
+	  if (!isArray(promises) && !(isObject(promises) && promises.then !== undefined)) {
+	    return Promise.reject(new TypeError("RSVP.filter must be called with an array or promise"), label);
+	  }
+	
+	  if (!isFunction(filterFn)) {
+	    return Promise.reject(new TypeError("RSVP.filter expects function as a second argument"), label);
+	  }
+	
 	  var promise = isArray(promises) ? resolveAll(promises, label) : resolveSingle(promises, label);
 	  return promise.then(function (values) {
-	    if (!isFunction(filterFn)) {
-	      throw new TypeError("You must pass a function as filter's second argument.");
-	    }
-	
 	    var length = values.length;
 	    var filtered = new Array(length);
 	
@@ -2433,9 +2475,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var results = new Array(length);
 	      var newLength = 0;
 	
-	      for (var i = 0; i < length; i++) {
-	        if (filtered[i]) {
-	          results[newLength] = values[i];
+	      for (var _i = 0; _i < length; _i++) {
+	        if (filtered[_i]) {
+	          results[newLength] = values[_i];
 	          newLength++;
 	        }
 	      }
@@ -2448,7 +2490,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	var len = 0;
-	var vertxNext = undefined;
+	var vertxNext = void 0;
 	function asap(callback, arg) {
 	  queue$1[len] = callback;
 	  queue$1[len + 1] = arg;
@@ -2464,7 +2506,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var browserWindow = typeof window !== 'undefined' ? window : undefined;
 	var browserGlobal = browserWindow || {};
 	var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
-	var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && ({}).toString.call(process) === '[object process]';
+	var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
 	
 	// test for web worker but not in IE10
 	var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
@@ -2546,7 +2588,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}
 	
-	var scheduleFlush$1 = undefined;
+	var scheduleFlush$1 = void 0;
 	// Decide what async method to use to triggering processing of queued callbacks:
 	if (isNode) {
 	  scheduleFlush$1 = useNextTick();
@@ -2560,7 +2602,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  scheduleFlush$1 = useSetTimeout();
 	}
 	
-	var platform = undefined;
+	var platform = void 0;
 	
 	/* global self */
 	if (typeof self === 'object') {
@@ -2568,26 +2610,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  /* global global */
 	} else if (typeof global === 'object') {
-	    platform = global;
-	  } else {
-	    throw new Error('no global: `self` or `global` found');
-	  }
+	  platform = global;
+	} else {
+	  throw new Error('no global: `self` or `global` found');
+	}
 	
-	var _async$filter;
+	var _asap$cast$Promise$Ev;
 	
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
 	// defaults
-	
-	// the default export here is for backwards compat:
-	//   https://github.com/tildeio/rsvp.js/issues/434
 	config.async = asap;
 	config.after = function (cb) {
 	  return setTimeout(cb, 0);
 	};
 	var cast = resolve$2;
 	
-	var async = function async(callback, arg) {
+	var async = function (callback, arg) {
 	  return config.async(callback, arg);
 	};
 	
@@ -2608,7 +2647,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      on(eventName, callbacks[eventName]);
 	    }
 	  }
-	}var rsvp = (_async$filter = {
+	}
+	
+	// the default export here is for backwards compat:
+	//   https://github.com/tildeio/rsvp.js/issues/434
+	var rsvp = (_asap$cast$Promise$Ev = {
+	  asap: asap,
 	  cast: cast,
 	  Promise: Promise,
 	  EventTarget: EventTarget,
@@ -2626,10 +2670,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  resolve: resolve$2,
 	  reject: reject$2,
 	  map: map
-	}, _defineProperty(_async$filter, 'async', async), _defineProperty(_async$filter, 'filter', // babel seems to error if async isn't a computed prop here...
-	filter), _async$filter);
+	}, _defineProperty(_asap$cast$Promise$Ev, 'async', async), _defineProperty(_asap$cast$Promise$Ev, 'filter', filter), _asap$cast$Promise$Ev);
 	
 	exports['default'] = rsvp;
+	exports.asap = asap;
 	exports.cast = cast;
 	exports.Promise = Promise;
 	exports.EventTarget = EventTarget;
@@ -2653,7 +2697,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, '__esModule', { value: true });
 	
 	})));
+	
 	//# sourceMappingURL=rsvp.map
+	
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(4).setImmediate, (function() { return this; }())))
 
 /***/ },
